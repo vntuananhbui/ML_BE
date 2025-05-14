@@ -4,31 +4,43 @@ from PIL import Image
 import io
 import logging
 import json
+import os
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Disable GPU usage
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 class PaddyPredictionService:
     def __init__(self):
         try:
-            # Set memory growth for GPU if available
-            gpus = tf.config.list_physical_devices('GPU')
-            if gpus:
-                for gpu in gpus:
-                    tf.config.experimental.set_memory_growth(gpu, True)
+            # Force CPU usage
+            tf.config.set_visible_devices([], 'GPU')
             
-            # Load models
+            # Set memory growth for CPU
+            tf.config.threading.set_inter_op_parallelism_threads(2)
+            tf.config.threading.set_intra_op_parallelism_threads(2)
+            
+            # Load models with memory optimization
             logger.info("Loading models...")
-            self.disease_model = tf.keras.models.load_model('./model/task1_finetuned_new.keras', compile=False)
-            self.variety_model = tf.keras.models.load_model('model/task2_resnet_nana.keras', compile=False)
-            self.age_model = tf.keras.models.load_model('./model/task3_efficientNet_cnn.keras', compile=False)
             
-            # Compile models
+            # Load models one at a time to manage memory
+            logger.info("Loading disease model...")
+            self.disease_model = tf.keras.models.load_model('./model/task1_finetuned_new.keras', compile=False)
             self.disease_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+            
+            logger.info("Loading variety model...")
+            self.variety_model = tf.keras.models.load_model('model/task2_resnet_nana.keras', compile=False)
             self.variety_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+            
+            logger.info("Loading age model...")
+            self.age_model = tf.keras.models.load_model('./model/task3_efficientNet_cnn.keras', compile=False)
             self.age_model.compile(optimizer='adam', loss='mse')
             
             # Load class mappings
+            logger.info("Loading class mappings...")
             with open('disease_classes.json', 'r') as f:
                 self.disease_classes = json.load(f)
             with open('variety_classes.json', 'r') as f:

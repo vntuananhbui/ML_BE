@@ -1,6 +1,7 @@
 tensorflow
 numpy
-pillow
+Pillow
 logging 
 fastapi
 uvicorn
+python-multipart
