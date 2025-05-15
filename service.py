@@ -11,11 +11,8 @@ logger = logging.getLogger(__name__)
 class PaddyPredictionService:
     def __init__(self):
         try:
-            # Set memory growth for GPU if available
-            gpus = tf.config.list_physical_devices('GPU')
-            if gpus:
-                for gpu in gpus:
-                    tf.config.experimental.set_memory_growth(gpu, True)
+            # Force CPU usage
+            tf.config.set_visible_devices([], 'GPU')
             
             # Load models
             logger.info("Loading models...")
