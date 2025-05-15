@@ -4,30 +4,23 @@ from PIL import Image
 import io
 import logging
 import json
-import os
 
-# Suppress TensorFlow warnings
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 0=all, 1=no INFO, 2=no INFO/WARNING, 3=no INFO/WARNING/ERROR
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Disable GPU
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class PaddyPredictionService:
     def __init__(self):
         try:
-            # Configure TensorFlow for CPU
-            tf.config.set_visible_devices([], 'GPU')
-            
-            # Set memory growth and threading
-            tf.config.threading.set_inter_op_parallelism_threads(2)
-            tf.config.threading.set_intra_op_parallelism_threads(2)
+            # Set memory growth for GPU if available
+            gpus = tf.config.list_physical_devices('GPU')
+            if gpus:
+                for gpu in gpus:
+                    tf.config.experimental.set_memory_growth(gpu, True)
             
             # Load models
             logger.info("Loading models...")
             self.disease_model = tf.keras.models.load_model('./model/task1_finetuned_new.keras', compile=False)
-            self.variety_model = tf.keras.models.load_model('./model/task2_resnet_nana.keras', compile=False)
+            self.variety_model = tf.keras.models.load_model('./model/task2_cnn_finetuned_nana_1.keras', compile=False)
             self.age_model = tf.keras.models.load_model('./model/task3_efficientNet_cnn.keras', compile=False)
             
             # Compile models
