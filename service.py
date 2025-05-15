@@ -4,10 +4,10 @@ from PIL import Image
 import io
 import logging
 import json
-
+import os 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 class PaddyPredictionService:
     def __init__(self):
         try:
