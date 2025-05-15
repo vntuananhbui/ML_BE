@@ -5,9 +5,19 @@ import io
 import logging
 import json
 import os
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Dense, Dropout, BatchNormalization
+from tensorflow.keras.models import Sequential
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
+# Constants
+IMG_WIDTH = 224
+IMG_HEIGHT = 224
+REG_LAMBDA = 0.01
+NUM_CLASSES = 10
+
 class PaddyPredictionService:
     def __init__(self):
         try:
@@ -20,7 +30,47 @@ class PaddyPredictionService:
             # Load models
             logger.info("Loading models...")
             self.disease_model = tf.keras.models.load_model('./model/task1_finetuned_new.keras', compile=False)
-            self.variety_model = tf.keras.models.load_model('./model/task2_cnn_finetuned_nana_1.keras', compile=False)
+            
+            # Define variety_model architecture
+            # logger.info("Defining and loading variety_model...")
+            # self.variety_model = Sequential([
+            #     Conv2D(32, (3, 3), activation='relu',
+            #           padding='same',
+            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA),
+            #           input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+            #     MaxPooling2D((2, 2)),
+
+            #     Conv2D(64, (3, 3), activation='relu',
+            #           padding='same',
+            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA)),
+            #     BatchNormalization(),
+            #     MaxPooling2D((2, 2)),
+
+            #     Conv2D(128, (3, 3), activation='relu', 
+            #           padding='same',
+            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA)),
+            #     BatchNormalization(),
+            #     MaxPooling2D((2, 2)),
+
+            #     Conv2D(256, (3, 3), activation='relu', 
+            #           padding='same',
+            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA)),
+            #     BatchNormalization(),
+            #     MaxPooling2D((2, 2)),
+
+            #     GlobalAveragePooling2D(),
+            #     Dropout(0.4),
+            #     Dense(512, activation='relu'),
+            #     Dropout(0.4),
+            #     Dense(256, activation='relu'),
+            #     Dropout(0.2),
+            #     Dense(NUM_CLASSES, activation='softmax')
+            # ])
+            
+            # # Load weights for variety model
+            # self.variety_model.load_weights('./model/cnn_finetuned_model.weights.h5')
+            self.variety_model = tf.keras.models.load_model('./model/task2_cnn_finetuned_nana_2.keras', compile=False)
+
             self.age_model = tf.keras.models.load_model('./model/task3_efficientNet_cnn.keras', compile=False)
             
             # Compile models
