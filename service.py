@@ -30,46 +30,8 @@ class PaddyPredictionService:
             # Load models
             logger.info("Loading models...")
             self.disease_model = tf.keras.models.load_model('./model/task1_finetuned_new.keras', compile=False)
-            
-            # Define variety_model architecture
-            # logger.info("Defining and loading variety_model...")
-            # self.variety_model = Sequential([
-            #     Conv2D(32, (3, 3), activation='relu',
-            #           padding='same',
-            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA),
-            #           input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
-            #     MaxPooling2D((2, 2)),
 
-            #     Conv2D(64, (3, 3), activation='relu',
-            #           padding='same',
-            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA)),
-            #     BatchNormalization(),
-            #     MaxPooling2D((2, 2)),
-
-            #     Conv2D(128, (3, 3), activation='relu', 
-            #           padding='same',
-            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA)),
-            #     BatchNormalization(),
-            #     MaxPooling2D((2, 2)),
-
-            #     Conv2D(256, (3, 3), activation='relu', 
-            #           padding='same',
-            #           kernel_regularizer=tf.keras.regularizers.l2(REG_LAMBDA)),
-            #     BatchNormalization(),
-            #     MaxPooling2D((2, 2)),
-
-            #     GlobalAveragePooling2D(),
-            #     Dropout(0.4),
-            #     Dense(512, activation='relu'),
-            #     Dropout(0.4),
-            #     Dense(256, activation='relu'),
-            #     Dropout(0.2),
-            #     Dense(NUM_CLASSES, activation='softmax')
-            # ])
-            
-            # # Load weights for variety model
-            # self.variety_model.load_weights('./model/cnn_finetuned_model.weights.h5')
-            self.variety_model = tf.keras.models.load_model('./model/task2_cnn_finetuned_nana_2.keras', compile=False)
+            self.variety_model = tf.keras.models.load_model('./model/task2_resnet_finetuned.keras', compile=False)
 
             self.age_model = tf.keras.models.load_model('./model/task3_efficientNet_cnn.keras', compile=False)
             
@@ -154,7 +116,7 @@ class PaddyPredictionService:
             # Make prediction
             prediction = self.age_model.predict(processed_image, verbose=0)
             # Get the predicted age
-            predicted_age = float(prediction[0][0])
+            predicted_age = round(float(prediction[0][0]), 2)
             
             return {
                 "age_days": predicted_age
